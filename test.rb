@@ -1,18 +1,28 @@
 require_relative 'myJson.rb'
 require 'json'
 
-test_str1 = '{ "first_name" : "Sammy", "last_name" : 5,  "online" : true }'
-test_str2 = '{ "first\"_name" : "Sammy", "last_name": "Shark",  "online" : true }'
-test_str3 = '{ "first_name" : 5,  "online" : true }'
+tests = []
+tests << '{ "first_name" : "Sammy", "last_name" : "Dickens"}'
+tests << '{"first_name":"Sammy","last_name":"Dickens"}'
+
+tests << '{ "first_name" : "Sammy", "last_name" : "Dickens",  "online" : true }'
+tests << '{ "first_name" : "Sammy", "last_name" : "Dickens",  "online" : true}'
+
+tests << '{"string":"goodbye","fixnum":6,"float": 48.9}'
+tests << '{"string":"goodbye","fixnum":6,"float":48.9 }'
+tests << '{"string":"goodbye","float":48.9, "fixnum":6 }'
+tests << '{"string":"goodbye","float":48.9, "fixnum":6}'
 
 jp = MyJson.new
-obj = jp.process_string(test_str3)
-puts obj
+tests.each_index do |ind|
+  obj = jp.process_string(tests[ind])
+  puts obj
+end
 
 
 
 # require 'json'
-
-# my_hash = {:hello => "goo\"dbye"}
-# str =  JSON.generate(my_hash)# => "{\"hello\":\"goodbye\"}"
+#
+# my_hash = {"string" => "goo\"dbye", "fixnum" => 6, "float" => 48.9}
+# str =  JSON.generate(my_hash)
 # puts str

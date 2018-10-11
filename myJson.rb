@@ -1,9 +1,14 @@
 class MyJson
   attr_accessor :base_str, :cursor
 
+  OPEN_BRACKETS = ['{', '[']
+  CLOSE_BRACKETS = ['}', ']']
+
   def initialize
   end
 
+  # @param [String] str - json source text for analysis
+  # @return [Hash] ruby structure constructed from source string
   def process_string(str)
     self.base_str = str.strip
     self.cursor = 0
@@ -11,32 +16,31 @@ class MyJson
     process_hash
   end
 
+  # process Hash object
   def process_hash
-    nesting_stack = []
     hash_obj = {}
 
     # check for start of the hash
     raise "ERROR: there is no hash found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '{'
     self.cursor += 1
 
-    while self.base_str[self.cursor] != '}' ||
-          nesting_stack.size != 0 do
-      check_for_out_of_range
+    while self.base_str[self.cursor] != '}' do
+      # check_for_out_of_range
 
-      skip_delimeter
-      key = get_next_object
-      skip_delimeter
-      val = get_next_object
-      hash_obj[key] = val
+      analyze_further = skip_delimeter
+      if analyze_further
+        key = get_next_object
+        skip_delimeter
+        val = get_next_object
+        hash_obj[key] = val
+      end
     end
 
     hash_obj
   end
 
-  def check_for_out_of_range
-    raise "ERROR: invalid json format, } is missing" if self.cursor >= self.base_str.size
-  end
-
+  # determine next object from source string
+  # @return [Variable] object of specified type that has been found next
   def get_next_object
     tmp = ""
     while self.base_str[self.cursor] == ' ' do
@@ -71,17 +75,27 @@ class MyJson
                    end
     end
 
-    self.cursor += 1 # skip end quotes
+    self.cursor += 1 if string_detected # skip end quotes
 
-    puts "found obj: '#{tmp}'"
+    # puts "found obj: '#{tmp}'"
+    tmp = eval(tmp) if not string_detected
     tmp
   end
 
+  # @return [bool] sequence_border_detected,
+  #               stop processing of hash or array if we have found the last item
   def skip_delimeter
-    while self.base_str[self.cursor] == ' ' ||
-          self.base_str[self.cursor] == ':' ||
-          self.base_str[self.cursor] == ','
+    char = self.base_str[self.cursor]
+    while self.cursor < self.base_str.size &&
+        ( char == ' ' ||
+          char == ':' ||
+          char == ',')
       self.cursor += 1
+      char = self.base_str[self.cursor]
     end
+
+    sequence_border_detected = CLOSE_BRACKETS.include?(char)
+    return (not sequence_border_detected)
   end
+
 end
