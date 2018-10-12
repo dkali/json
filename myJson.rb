@@ -3,7 +3,6 @@ class MyJson
 
   OPEN_BRACKETS = ['{', '[']
   CLOSE_BRACKETS = ['}', ']']
-  ESCAPE_CHARACTERS = [ '"', '\\', 'a', 'b', 'r', 'n', 's', 't']
 
   # @param [String] str - json source text for analysis
   # @return [Hash] ruby structure constructed from source string
@@ -83,13 +82,12 @@ class MyJson
     b_continue = true
     while b_continue do
       char = self.base_str[self.cursor]
-      tmp << char if char != '\\'
-      self.cursor += 1
-
-      # check for quotes inside the text value
-      if char == '\\' && ESCAPE_CHARACTERS.include?(self.base_str[self.cursor])
-        # tmp << char
-        tmp << self.base_str[self.cursor]
+      if char == '\\'
+        tmp << char
+        tmp << self.base_str[self.cursor + 1]
+        self.cursor += 2
+      else
+        tmp << char
         self.cursor += 1
       end
 
