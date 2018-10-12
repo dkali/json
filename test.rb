@@ -13,7 +13,12 @@ tests << '{"string":"goodbye","fixnum":6,"float":48.9 }'
 tests << '{"string":"goodbye","float":48.9, "fixnum":6 }'
 tests << '{"string":"goodbye","float":48.9, "fixnum":6}'
 
-tests << '{ "first\"_name" : "Sammy", "last_name" : "Dickens"}' #TODO double check
+tests << '{ "first\"_name" : "Sammy", "last_name" : "Dickens"}'
+tests << "{ \"first\\\"_name\" : \"Sammy\", \"last_name\" : \"Dickens\"}"
+
+# tests << "{\"text\" : \"text to check \\\" escape sequence\"}"
+
+
 
 tests << '{"string":"goodbye","numbers":{"fixnum":6,"float":48.9}}'
 tests << '{"string":"goodbye","numbers":{ "fixnum" : 6, "float" : 48.9 } }'
@@ -34,7 +39,6 @@ puts "Done"
 
 
 # require 'json'
-#
-# my_hash = {"hash_in_array" => [{"key1" => 1, "key2" => 2}, {"key1" => 1, "key2" => 2.5}, {"key1" => [1, 2, 3], "key2" => [4, 5, 6]}]}
+# my_hash = {"text"=>"text to check \" escape sequence"}
 # str =  JSON.generate(my_hash)
 # puts str
