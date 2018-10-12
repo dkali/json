@@ -79,6 +79,12 @@ class MyJson
 
     end
 
+    # check for empty value
+    if string_detected && self.base_str[self.cursor] == '"'
+      self.cursor += 1
+      return ""
+    end
+
     b_continue = true
     while b_continue do
       char = self.base_str[self.cursor]
