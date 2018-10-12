@@ -4,9 +4,6 @@ class MyJson
   OPEN_BRACKETS = ['{', '[']
   CLOSE_BRACKETS = ['}', ']']
 
-  def initialize
-  end
-
   # @param [String] str - json source text for analysis
   # @return [Hash] ruby structure constructed from source string
   def process_string(str)
@@ -17,16 +14,15 @@ class MyJson
   end
 
   # process Hash object
+  # @return [Hash]
   def process_hash
     hash_obj = {}
 
     # check for start of the hash
-    raise "ERROR: there is no hash found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '{'
+    raise "ERROR: there is no Hash found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '{'
     self.cursor += 1
 
     while self.base_str[self.cursor] != '}' do
-      # check_for_out_of_range
-
       analyze_further = skip_delimeter
       if analyze_further
         key = get_next_object
@@ -36,7 +32,29 @@ class MyJson
       end
     end
 
+    self.cursor += 1 # skip '}'
     hash_obj
+  end
+
+  # process Array object
+  # @return [Array]
+  def procecss_array
+    array_obj = []
+
+    # check for start of the array
+    raise "ERROR: there is no Array found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '['
+    self.cursor += 1
+
+    while self.base_str[self.cursor] != ']' do
+      analyze_further = skip_delimeter
+      if analyze_further
+        val = get_next_object
+        array_obj << val
+      end
+    end
+
+    self.cursor += 1 # skip ']'
+    array_obj
   end
 
   # determine next object from source string
@@ -48,9 +66,17 @@ class MyJson
     end
 
     string_detected = false
-    if self.base_str[cursor] == '"'
+    case self.base_str[cursor]
+    when '"'
       self.cursor += 1
       string_detected = true
+
+    when '{'
+      return process_hash
+
+    when '['
+      return procecss_array
+
     end
 
     b_continue = true
