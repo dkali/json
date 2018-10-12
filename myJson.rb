@@ -1,8 +1,9 @@
+# class to process incoming UTF-8 strings into ruby structures
 class MyJson
   attr_accessor :base_str, :cursor
 
-  OPEN_BRACKETS = ['{', '[']
-  CLOSE_BRACKETS = ['}', ']']
+  OPEN_BRACKETS = ['{', '['].freeze
+  CLOSE_BRACKETS = ['}', ']'].freeze
 
   # @param [String] str - json source text for analysis
   # @return [Hash] ruby structure constructed from source string
@@ -19,20 +20,22 @@ class MyJson
     hash_obj = {}
 
     # check for start of the hash
-    raise "ERROR: there is no Hash found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '{'
-    self.cursor += 1
+    if base_str[@cursor] != '{'
+      raise "ERROR: there is no Hash found at position #{@cursor} in string: #{@base_str}"
+    end
+    @cursor += 1
 
-    while self.base_str[self.cursor] != '}' do
+    while @base_str[@cursor] != '}'
       analyze_further = skip_delimeter
-      if analyze_further
-        key = get_next_object
-        skip_delimeter
-        val = get_next_object
-        hash_obj[key] = val
-      end
+      break unless analyze_further
+
+      key = get_next_object
+      skip_delimeter
+      val = get_next_object
+      hash_obj[key] = val
     end
 
-    self.cursor += 1 # skip '}'
+    @cursor += 1 # skip '}'
     hash_obj
   end
 
@@ -42,10 +45,12 @@ class MyJson
     array_obj = []
 
     # check for start of the array
-    raise "ERROR: there is no Array found at position #{self.cursor} in string: #{base_str}" if self.base_str[self.cursor] != '['
-    self.cursor += 1
+    if @base_str[@cursor] != '['
+      raise "ERROR: there is no Array found at position #{@cursor} in string: #{base_str}"
+    end
+    @cursor += 1
 
-    while self.base_str[self.cursor] != ']' do
+    while @base_str[@cursor] != ']'
       analyze_further = skip_delimeter
       if analyze_further
         val = get_next_object
@@ -53,22 +58,22 @@ class MyJson
       end
     end
 
-    self.cursor += 1 # skip ']'
+    @cursor += 1 # skip ']'
     array_obj
   end
 
   # determine next object from source string
   # @return [Variable] object of specified type that has been found next
   def get_next_object
-    tmp = ""
-    while self.base_str[self.cursor] == ' ' do
-      self.cursor += 1 # skip whitespaces
+    tmp = ''
+    while @base_str[@cursor] == ' '
+      @cursor += 1 # skip whitespaces
     end
 
     string_detected = false
-    case self.base_str[cursor]
+    case @base_str[cursor]
     when '"'
-      self.cursor += 1
+      @cursor += 1
       string_detected = true
 
     when '{'
@@ -80,54 +85,50 @@ class MyJson
     end
 
     # check for empty value
-    if string_detected && self.base_str[self.cursor] == '"'
-      self.cursor += 1
-      return ""
+    if string_detected && @base_str[@cursor] == '"'
+      @cursor += 1
+      return ''
     end
 
     b_continue = true
-    while b_continue do
-      char = self.base_str[self.cursor]
+    while b_continue
+      char = @base_str[@cursor]
+      tmp << char
       if char == '\\'
-        tmp << char
-        tmp << self.base_str[self.cursor + 1]
-        self.cursor += 2
+        tmp << @base_str[@cursor + 1]
+        @cursor += 2
       else
-        tmp << char
-        self.cursor += 1
+        @cursor += 1
       end
 
       b_continue = if string_detected
-        self.base_str[self.cursor] != '"'
-      else
-        self.base_str[self.cursor] != ' ' &&
-        self.base_str[self.cursor] != '}' &&
-        self.base_str[self.cursor] != ']' &&
-        self.base_str[self.cursor] != ','
+                     @base_str[@cursor] != '"'
+                   else
+                     @base_str[@cursor] != ' ' &&
+                     @base_str[@cursor] != '}' &&
+                     @base_str[@cursor] != ']' &&
+                     @base_str[@cursor] != ','
                    end
     end
 
-    self.cursor += 1 if string_detected # skip end quotes
+    @cursor += 1 if string_detected # skip end quotes
 
     # puts "found obj: '#{tmp}'"
-    tmp = eval(tmp) if not string_detected
+    tmp = eval(tmp) unless string_detected
     tmp
   end
 
   # @return [bool] sequence_border_detected,
   #               stop processing of hash or array if we have found the last item
   def skip_delimeter
-    char = self.base_str[self.cursor]
-    while self.cursor < self.base_str.size &&
-        ( char == ' ' ||
-          char == ':' ||
-          char == ',')
-      self.cursor += 1
-      char = self.base_str[self.cursor]
+    char = @base_str[@cursor]
+    while @cursor < @base_str.size &&
+          [' ', ':', ','].include?(char)
+      @cursor += 1
+      char = @base_str[@cursor]
     end
 
     sequence_border_detected = CLOSE_BRACKETS.include?(char)
     return (not sequence_border_detected)
   end
-
 end

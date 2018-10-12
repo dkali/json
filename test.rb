@@ -51,9 +51,7 @@ tests.each_index do |ind|
   puts obj
 end
 
-
-puts "Done"
-
+puts 'Done'
 
 # require 'json'
 # my_hash = {"text"=>"text to check \" escape sequence"}
