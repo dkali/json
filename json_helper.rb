@@ -1,5 +1,5 @@
 # class to process incoming UTF-8 strings into ruby structures
-class MyJson
+class JsonHelper
   attr_accessor :base_str, :cursor
 
   OPEN_BRACKETS = ['{', '['].freeze
