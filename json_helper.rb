@@ -114,7 +114,9 @@ class JsonHelper
     @cursor += 1 if string_detected # skip end quotes
 
     # puts "found obj: '#{tmp}'"
-    tmp = eval(tmp) unless string_detected
+    unless string_detected
+      tmp = tmp != 'null' ? eval(tmp) : nil
+    end
     tmp
   end
 
