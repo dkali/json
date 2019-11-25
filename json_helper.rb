@@ -93,11 +93,31 @@ class JsonHelper
     b_continue = true
     while b_continue
       char = @base_str[@cursor]
-      tmp << char
       if char == '\\'
-        tmp << @base_str[@cursor + 1]
+        escaped_char = @base_str[@cursor + 1]
+        case escaped_char
+        when '"'
+          tmp << "\""
+        when 'a'
+          tmp << "\a"
+        when 'b'
+          tmp << "\b"
+        when 'r'
+          tmp << "\r"
+        when 'n'
+          tmp << "\n"
+        when 's'
+          tmp << "\s"
+        when 't'
+          tmp << "\t"
+        else # for single \
+          tmp << char
+          @cursor -= 1 # compensate shifting below
+        end
+        # tmp << @base_str[@cursor + 1]
         @cursor += 2
       else
+        tmp << char
         @cursor += 1
       end
 
